@@ -1,0 +1,130 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+
+namespace ConsoleApplication3
+{
+    [TestFixture]
+    class SearchTestClass
+    {
+        IWebDriver driver;
+        public IWebElement SerachInputField;
+        public IWebElement SerachButtonField;
+
+
+
+        [SetUp]
+
+        public void Init()
+        {
+            driver = new ChromeDriver();
+            driver.Navigate().GoToUrl("https://codility-frontend-prod.s3.amazonaws.com/media/task_static/qa_csharp_search/862b0faa506b8487c25a3384cfde8af4/static/attachments/reference_page.html");
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+        }
+
+        [Test]
+
+        public void test_VerifyFields()
+        {
+            SerachInputField = driver.FindElement(By.Id("search-input"));
+            SerachButtonField = driver.FindElement(By.Id("search-button"));
+            Assert.IsTrue(SerachInputField.Displayed && SerachButtonField.Displayed, "Fields search input and button are not Present");
+        }
+
+
+        [Test]
+
+        public void test_CheckSendingEmptyQueryDisplaysAnErrorMessage()
+        {
+            SerachInputField.SendKeys("");
+            SerachButtonField.Click();
+            Assert.AreEqual("Provide some query", driver.FindElement(By.Id("error-empty-query")).Text.ToString());
+
+        }
+
+        [Test]
+
+        public void test_CheckIfOneISlandISReturnedAfterQueryingForIsla()
+        {
+            SerachInputField.SendKeys("isla");
+            SerachButtonField.Click();
+            IList<IWebElement> searchresutls = driver.FindElements(By.XPath("//ul[@id='search-results']//li"));
+            int count = 0;
+            foreach (IWebElement element in searchresutls)
+            {
+                if (element.Text.Contains("isla"))
+                {
+                    count++;
+                }
+            }
+
+            if (count > 0 && searchresutls.Count > 0)
+            {
+                Assert.Pass("Atleast one isla result is present");
+            }
+            else
+            {
+                Assert.Fail("Atleast one isla result is  not present");
+            }
+        }
+
+        [Test]
+
+        public void test_CheckIfUserGetsFeedBackIfNoResults()
+        {
+            SerachInputField.SendKeys("castle");
+            SerachButtonField.Click();
+            IList<IWebElement> searchresutls = driver.FindElements(By.XPath("//ul[@id='search-results']//li"));
+            Assert.AreEqual("No results", driver.FindElement(By.Id("error-empty-query")).Text.ToString());
+            if(searchresutls.Count==0)
+            {
+                Assert.Pass("No Results are displayed");
+            }
+            else
+            {
+                Assert.Fail("results are displayed");
+            }
+
+        }
+
+        [Test]
+
+        public void test_CheckOneResultDisplayedForPort()
+        {
+
+            SerachInputField.SendKeys("port");
+            SerachButtonField.Click();
+            IList<IWebElement> searchresutls = driver.FindElements(By.XPath("//ul[@id='search-results']//li"));
+            int count = 0;
+            foreach (IWebElement element in searchresutls)
+            {
+                if (element.Text.Contains("port"))
+                {
+                    count++;
+                }
+            }
+
+            if (count ==1 && searchresutls.Count==1)
+            {
+                Assert.Pass("only one matching result for the port is displayed");
+            }
+            else
+            {
+                Assert.Fail("More than one results are displayed for the port");
+            }
+        }
+
+
+
+
+
+
+
+
+    }
+}
